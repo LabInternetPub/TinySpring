@@ -40,8 +40,8 @@ public class ComponentFactory {
     private Object newComponentObject(Class<?> clazz) {
         Object componentObject = null;
         try {
-            logger.info("Instantiated component: {}", clazz.getName());
             componentObject = clazz.getDeclaredConstructor().newInstance();
+            logger.info("Instantiated component: {}", clazz.getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
