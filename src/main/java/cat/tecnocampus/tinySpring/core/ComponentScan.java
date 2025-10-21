@@ -8,11 +8,10 @@ import java.lang.annotation.Annotation;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ComponentScan {
     private String basePackage;
@@ -51,15 +50,29 @@ public class ComponentScan {
         String path = basePackage.replace('.', '/');
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URL resource = classLoader.getResource(path);
+
         if (resource == null) {
             throw new IllegalArgumentException("No resource for " + path);
         }
-        File directory = new File(resource.getFile());
-        if (!directory.exists()) {
-            throw new IllegalArgumentException("Directory does not exist: " + directory);
-        }
+        try {
+            // Convert URL to URI first to properly handle encoding (spaces, special chars)
+            URI uri = resource.toURI();
+            File directory = new File(uri);
 
-        return Arrays.stream(directory.listFiles()).filter(f -> f.getName().endsWith(".class")).toList();
+            if (!directory.exists()) {
+                throw new IllegalArgumentException("Directory does not exist: " + directory);
+            }
+            File[] files = directory.listFiles();
+            if (files == null) {
+                return Collections.emptyList();
+            }
+            return Arrays.stream(files)
+                    .filter(f -> f.getName().endsWith(".class"))
+                    .toList();
+
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("Invalid URI for resource: " + resource, e);
+        }
     }
 
     private Class<?> getClassFromFile(File file) {
