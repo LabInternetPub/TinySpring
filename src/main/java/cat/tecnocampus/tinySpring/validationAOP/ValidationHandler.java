@@ -21,9 +21,10 @@ public class ValidationHandler implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    public Object invoke(Object proxy, Method interfaceMethod, Object[] args) throws Throwable {
         int index = 0;
-        for (Parameter parameter : method.getParameters()) {
+        Method classMethod = target.getClass().getMethod(interfaceMethod.getName(), interfaceMethod.getParameterTypes());
+        for (Parameter parameter : classMethod.getParameters()) {
             if (parameter.isAnnotationPresent(Length.class)) {
                 Length length = parameter.getAnnotation(Length.class);
                 int min = length.min();
@@ -36,6 +37,6 @@ public class ValidationHandler implements InvocationHandler {
             }
             index ++;
         }
-        return method.invoke(target, args);
+        return interfaceMethod.invoke(target, args);
     }
 }

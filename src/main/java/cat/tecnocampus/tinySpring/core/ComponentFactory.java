@@ -25,7 +25,7 @@ public class ComponentFactory {
         return applicationContextContainer;
     }
 
-    public void buildContext() {
+    public void scanAndInstantiateComponents() {
         Set<Class<?>> componentClasses = getComponentClasses();
         logComponentClasses(componentClasses);
         componentClasses.stream()

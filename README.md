@@ -39,16 +39,16 @@ The Core is in charge of the Dependency Injection. Logically, it follows the ste
 
 #### Component Scan
 Looks for the application's components and store one instance in the context. It follows these steps:
-1. Scan the packages to find the files that represent classes
-2. Select the classes are annotated with @Component
-3. Create an instance of the classes 
-4. Store the instances in the application context. It uses a map where the key is the class name and the value is the instance of the class.
+1. Scans the packages to find the files that represent classes
+2. Selects the classes are annotated with @Component
+3. Creates an instance of the classes 
+4. Stores the instances in the application context. It uses a map where the key is the class name and the value is the instance of the class.
 
 #### Dependency Injection
 Sets the attributes annotated with @Autowired with the object of the attribute's type. It follows these steps:
-6. Look for the class attributes annotated with @Autowired to inject the appropriate object (the dependency).
-5. Get the type of the attribute and look for the instance in the application context.
-6. Set the attribute with the instance.
+6. Looks for the class attributes annotated with @Autowired to inject the appropriate object (the dependency).
+5. Gets the type of the attribute and look for the instance in the application context.
+6. Sets the attribute with the instance.
 
 #### Annotations
 The framework uses the following annotations: **@Component**, **@Service**, **@RestController** and, **@Autowired**. They are used to identify 
@@ -103,6 +103,9 @@ steps to run the application:
 3. Performs a couple of calls to the web server to simulate the requests.
 
 This last step, in a real framework, would not belong here. These requests would be performed from a REST client.
+
+## Building, packaging and installing in the local maven repository
+To build the project and add it to your local maven repository, just run `mvn clean install` in the root folder. 
 
 ## Bibliography 
 ### Other Tiny Spring Frameworks
