@@ -4,7 +4,6 @@ import cat.tecnocampus.tinySpring.core.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
@@ -13,21 +12,17 @@ import java.util.Set;
 
 public class ComponentFactory {
     private final ApplicationContextContainer applicationContextContainer;
-    private final ComponentScan componentScan;
     private final Logger logger = LoggerFactory.getLogger(ComponentFactory.class);
 
-    public ComponentFactory(String packageName) {
+    public ComponentFactory() {
         this.applicationContextContainer = new ApplicationContextContainer();
-        this.componentScan = new ComponentScan(packageName);
     }
 
     public ApplicationContextContainer getContextContainer() {
         return applicationContextContainer;
     }
 
-    public void scanAndInstantiateComponents() {
-        Set<Class<?>> componentClasses = getComponentClasses();
-        logComponentClasses(componentClasses);
+    public void instantiateComponents(Set<Class<?>> componentClasses) {
         componentClasses.stream()
                 .map(this::newComponentObject) //instantiates an object for each class
                 .forEach(o -> applicationContextContainer.register(o.getClass(), o));  //adds the object to the application context
@@ -48,18 +43,6 @@ public class ComponentFactory {
         return componentObject;
     }
 
-    private Set<Class<?>> getComponentClasses() {
-        Set<Class<?>> componentClasses;
-        try {
-            componentClasses = componentScan.componentScan();
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return componentClasses;
-    }
-
     private void autowire(Object instance) {
         Field[] fields = instance.getClass().getDeclaredFields();
         Arrays.stream(fields)
@@ -78,10 +61,6 @@ public class ComponentFactory {
                 e.printStackTrace();
             }
         }
-    }
-
-    private void logComponentClasses(Set<Class<?>> componentClasses) {
-        componentClasses.forEach(c -> logger.info("Discovered Component class: {}", c.getName()));
     }
 
     private void logAutowireInjection(Class<?> instance, Class<?> dependency) {

@@ -1,18 +1,33 @@
 package cat.tecnocampus.tinySpring;
 
 import cat.tecnocampus.tinySpring.core.ComponentFactory;
+import cat.tecnocampus.tinySpring.core.ComponentScan;
 import cat.tecnocampus.tinySpring.validationAOP.ValidationAOP;
 import cat.tecnocampus.tinySpring.webModule.SimpleWebFramework;
 
+import java.io.IOException;
+import java.util.Set;
+
 public class TinySpringFramework {
     private static ComponentFactory componentFactory;
+    private static ComponentScan componentScan;
 
     public static SimpleWebFramework run(Class<?> clazz, String[] args) {
+        Set<Class<?>> componentClasses;
+        componentScan = new ComponentScan(clazz.getPackageName() + ".application");
+
+        // Scans base package looking for component classes
+        try {
+            componentClasses = componentScan.componentScan();
+        } catch (ClassNotFoundException | IOException e) {
+            throw new RuntimeException(e);
+        }
+
         //Creates the application context
-        componentFactory = new ComponentFactory(clazz.getPackageName() + ".application");
+        componentFactory = new ComponentFactory();
 
         // Scans and instantiates the components
-        componentFactory.scanAndInstantiateComponents();
+        componentFactory.instantiateComponents(componentClasses);
 
         // Creates proxies for the components that need validation
         ValidationAOP.createAndRegisterValidationProxies(componentFactory.getContextContainer());

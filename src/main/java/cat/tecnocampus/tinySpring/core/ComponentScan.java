@@ -1,6 +1,8 @@
 package cat.tecnocampus.tinySpring.core;
 
 import cat.tecnocampus.tinySpring.core.annotation.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import java.util.*;
 
 public class ComponentScan {
     private String basePackage;
+    private final Logger logger = LoggerFactory.getLogger(ComponentScan.class);
 
 
     public ComponentScan(String basePackage) {
@@ -29,6 +32,7 @@ public class ComponentScan {
                 .map(this::getClassFromFile)
                 .filter(this::isComponent)
                 .forEach(c -> components.add(c));
+        logComponentClasses(components);
         return components;
     }
 
@@ -83,5 +87,9 @@ public class ComponentScan {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private void logComponentClasses(Set<Class<?>> componentClasses) {
+        componentClasses.forEach(c -> logger.info("Discovered Component class: {}", c.getName()));
     }
 }
