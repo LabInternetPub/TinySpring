@@ -16,27 +16,21 @@ import java.net.URL;
 import java.util.*;
 
 public class ComponentScan {
-    private String basePackage;
-    private final Logger logger = LoggerFactory.getLogger(ComponentScan.class);
+    private final static Logger logger = LoggerFactory.getLogger(ComponentScan.class);
 
-
-    public ComponentScan(String basePackage) {
-        this.basePackage = basePackage;
-    }
-
-    public Set<Class<?>> componentScan() throws ClassNotFoundException, IOException {
+    public static Set<Class<?>> componentScan(String basePackage) throws ClassNotFoundException, IOException {
         Set<Class<?>> components = new HashSet<>();
 
-        List<File> classes = getFilesOfClassesInBasePackage();
+        List<File> classes = getFilesOfClassesInBasePackage(basePackage);
         classes.stream()
-                .map(this::getClassFromFile)
-                .filter(this::isComponent)
+                .map(f -> getClassFromFile(basePackage, f))
+                .filter(f -> isComponent(f))
                 .forEach(c -> components.add(c));
         logComponentClasses(components);
         return components;
     }
 
-    private boolean isComponent(Class<?> clazz) {
+    private static boolean isComponent(Class<?> clazz) {
         if (clazz.equals(Retention.class) || clazz.equals(Documented.class) || clazz.equals(Target.class)) { // to avoid infinite loop since Retention <--> Documented
             return false;
         }
@@ -50,7 +44,7 @@ public class ComponentScan {
         return false;
     }
 
-    private List<File> getFilesOfClassesInBasePackage() {
+    private static List<File> getFilesOfClassesInBasePackage(String basePackage) {
         String path = basePackage.replace('.', '/');
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URL resource = classLoader.getResource(path);
@@ -79,7 +73,7 @@ public class ComponentScan {
         }
     }
 
-    private Class<?> getClassFromFile(File file) {
+    private static Class<?> getClassFromFile(String basePackage, File file) {
         String className = basePackage + '.' + file.getName().substring(0, file.getName().length() - 6);
         try {
             return Class.forName(className);
@@ -89,7 +83,7 @@ public class ComponentScan {
         return null;
     }
 
-    private void logComponentClasses(Set<Class<?>> componentClasses) {
+    private static void logComponentClasses(Set<Class<?>> componentClasses) {
         componentClasses.forEach(c -> logger.info("Discovered Component class: {}", c.getName()));
     }
 }

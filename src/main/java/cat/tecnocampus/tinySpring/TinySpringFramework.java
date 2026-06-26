@@ -14,11 +14,9 @@ public class TinySpringFramework {
 
     public static SimpleWebFramework run(Class<?> clazz, String[] args) {
         Set<Class<?>> componentClasses;
-        componentScan = new ComponentScan(clazz.getPackageName() + ".application");
-
         // Scans base package looking for component classes
         try {
-            componentClasses = componentScan.componentScan();
+            componentClasses = ComponentScan.componentScan(clazz.getPackageName() + ".application");
         } catch (ClassNotFoundException | IOException e) {
             throw new RuntimeException(e);
         }

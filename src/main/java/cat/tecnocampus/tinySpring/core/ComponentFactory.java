@@ -60,6 +60,7 @@ public class ComponentFactory {
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+            field.setAccessible(false);
         }
     }
 
