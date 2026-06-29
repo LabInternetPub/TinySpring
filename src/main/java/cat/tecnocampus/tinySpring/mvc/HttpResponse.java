@@ -1,4 +1,4 @@
-package cat.tecnocampus.tinySpring.webModule;
+package cat.tecnocampus.tinySpring.mvc;
 
 import java.util.Collections;
 import java.util.HashMap;

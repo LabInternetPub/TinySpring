@@ -3,21 +3,27 @@ package cat.tecnocampus.tinySpring;
 import cat.tecnocampus.tinySpring.core.ComponentFactory;
 import cat.tecnocampus.tinySpring.core.ComponentScan;
 import cat.tecnocampus.tinySpring.validationAOP.ValidationAOP;
-import cat.tecnocampus.tinySpring.webModule.SimpleWebFramework;
+import cat.tecnocampus.tinySpring.mvc.DispatcherServlet;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 
 public class TinySpringFramework {
     private static ComponentFactory componentFactory;
     private static ComponentScan componentScan;
 
-    public static SimpleWebFramework run(Class<?> clazz, String[] args) {
-        Set<Class<?>> componentClasses;
+    public static DispatcherServlet run(Class<?> clazz, String[] args) {
+        Set<Class<?>> componentClasses  = new HashSet<>();;
         // Scans base package looking for component classes
         try {
-            componentClasses = ComponentScan.componentScan(clazz.getPackageName() + ".application");
-        } catch (ClassNotFoundException | IOException e) {
+            //Application components
+            componentClasses.addAll(ComponentScan.componentScan(clazz.getPackageName() + ".application"));
+            // Framework MVC infrastructure components (including built-in filters)
+            componentClasses.addAll(
+                    ComponentScan.componentScan("cat.tecnocampus.tinySpring.mvc")
+            );
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -34,9 +40,6 @@ public class TinySpringFramework {
         componentFactory.injectDependencies();
 
         // Creates the web server or framework
-        SimpleWebFramework app = new SimpleWebFramework(componentFactory.getContextContainer());
-
-        return app;
+        return new DispatcherServlet(componentFactory.getContextContainer());
     }
-
 }
