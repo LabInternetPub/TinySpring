@@ -95,19 +95,11 @@ public class DispatcherServlet {
     private HandlerMethod resolveHandler(HttpRequest request) {
         HttpMethod method = HttpMethod.valueOf(request.getMethod().toUpperCase());
 
-        // 1. Exact match
         RouteKey exact = new RouteKey(method, request.getPath());
         if (routeTable.containsKey(exact)) {
             return routeTable.get(exact);
         }
-
-        // 2. Prefix match (keeps backward-compatible behaviour)
-        return routeTable.entrySet().stream()
-                .filter(e -> e.getKey().method() == method)
-                .filter(e -> request.getPath().startsWith(e.getKey().path()))
-                .map(Map.Entry::getValue)
-                .findFirst()
-                .orElse(null);
+        return null;
     }
 
     // ---------------------------------------------------------------
